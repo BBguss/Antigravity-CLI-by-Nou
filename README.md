@@ -178,6 +178,12 @@ Atau melalui perintah TUI: `/statusline reset`.
 
 ---
 
+## Kontributor & Author
+
+- **BBguss** ([@BBguss](https://github.com/BBguss)) &bull; `mbbbdg@gmail.com`
+
+---
+
 ## Lisensi
 
 Didistribusikan di bawah lisensi [MIT](LICENSE). Terbuka untuk digunakan, dimodifikasi, dan didistribusikan secara bebas.
