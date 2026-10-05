@@ -1,102 +1,116 @@
-# agy-by-nou — Universal Custom Statusline & Multi-Account Manager for Antigravity CLI (`agy`)
+# Antigravity CLI by Nou (`agy-by-nou`)
 
-Bar status persisten di terminal Antigravity CLI (`agy`): visual gauge kuota real-time + konteks sesi aktif.
-Tanpa perlu mengetik `/usage` lagi. Menggunakan slot resmi `statusLine` di `settings.json` — 100% tanpa modifikasi binary.
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL-blue.svg)](#-kompatibilitas--persyaratan)
+[![Shell](https://img.shields.io/badge/Shell-Bash%20%7C%20Zsh%20%7C%20Ash%20%7C%20POSIX-green.svg)](#-integrasi-shell-opsional)
+[![Engine](https://img.shields.io/badge/Engine-Direct%20Streaming%20v5-orange.svg)](#-arsitektur-teknis-direct-mode-v5)
+[![License](https://img.shields.io/badge/License-MIT-purple.svg)](#-lisensi)
 
-Dilengkapi dengan manajer profil multi-akun (**Multi-Account Switcher**) yang bekerja secara instan tanpa memakan kuota, tanpa jeda giliran agen (*zero agent turn*), serta portabel untuk dipasang di sistem operasi apa pun (**Linux, macOS, WSL, Synology DSM**).
+**Antigravity CLI by Nou** adalah ekstensi persisten untuk Google Antigravity CLI (`agy`) yang menyediakan visualisasi kuota real-time pada status bar terminal serta pengelola multi-akun instan (**Multi-Account Switcher**) tanpa memakan kuota LLM dan tanpa delay giliran agen (*zero turn, zero quota*).
+
+Menggunakan slot resmi konfigurasi `statusLine` pada `settings.json` bawaan Antigravity — **100% aman tanpa modifikasi binary**.
 
 ---
 
-## 📸 Contoh Tampilan (108–145 Kolom)
+## 📸 Tampilan Statusline
 
 ```text
-● Gemini 5h ░░░░░░ 0% ↺5m  W ████░░ 69% 29Sep │ ● Other 5h ██████ 100% ↺4h  W ██████ 100% 30Sep │ @user 16:33 my-project ⎇ main
+● Gemini 5h ░░░░░░ 0% ↺5m  W ████░░ 69% 29Sep │ ● Other 5h ██████ 100% ↺4h  W ██████ 100% 30Sep │ @user 16:33 my-project ⎇ main*
 ```
 
-* **`●` Indikator Status Kuota**: Hijau ($\ge 70\%$), Kuning ($\ge 30\%$), Merah ($< 30\%$).
-* **Bar `5h` & `W`**: Batas 5-jam ("harian") & batas mingguan (Weekly) + hitung mundur reset (`↺5m`) atau tanggal pembaruan (`29Sep`).
-* **Konteks `@akun`**: Identitas akun aktif yang diperoleh langsung dari session payload runner tanpa overhead jaringan/kuota.
-* **Konteks Direktori & Git**: Jam sistem, nama direktori kerja aktif, dan status branch git (`⎇ main*`, tanda `*` menandakan working tree kotor).
+* **Gauge Kuota Visual**: Bar status 5-jam (*sliding window*) & mingguan (*weekly*) dengan indikator warna ANSI adaptif:
+  * 🟢 **Hijau**: Sisa kuota $\ge 70\%$
+  * 🟡 **Kuning**: Sisa kuota $\ge 30\%$
+  * 🔴 **Merah**: Sisa kuota $< 30\%$
+* **Hitung Mundur Reset**: Menampilkan countdown reset kuota (`↺5m`, `↺4h`) atau tanggal reset mingguan (`29Sep`).
+* **Konteks Sesi Aktif**: Menampilkan akun pengguna aktif (`@user`), waktu sistem, direktori kerja saat ini, serta status git branch (`⎇ main*` dengan tanda `*` jika working tree kotor).
 
 ---
 
-## 🚀 Instalasi Universal (1 Langkah)
+## ✨ Fitur Utama
 
-Paket ini dirancang **universal** dan tidak bergantung pada direktori atau path server tertentu (`/volume1/` atau `/var/services/` telah dieliminasi total). Seluruh komponen terpasang ke direktori standar pengguna (`~/.gemini/` dan `~/.local/bin/`).
+* 📊 **Zero-Quota Statusline**: Kuota dan status sesi dibaca langsung dari payload runner secara lokal tanpa request API tambahan dan tanpa memakan kuota model.
+* ⚡ **Direct Mode Streaming (v5)**: Render super cepat (~0.15 detik) membaca `stdin` tanpa *background process*, tanpa daemon terpisah, dan bebas dari isu proses zombie/terhenti (*hang*).
+* 👥 **Instant Multi-Account Switcher**: Beralih profil akun Google dengan 1 perintah shell atau 1 slash command di dalam TUI.
+* 🔒 **Isolasi Profil Aman**: Kredensial dan token disimpan terpisah di direktori profil lokal (`0700` permissions) dan tidak pernah masuk ke repository kode.
+* 🛠️ **Multi-Tier Interfaces**: Mendukung pemanggilan lewat integrasi fungsi shell (`agy switch`), executable CLI (`agy-switch`), slash commands TUI (`/switch-account*`), maupun AI agent skills.
+* 🌐 **Cross-Platform Universal**: Berjalan mulus di berbagai distro Linux (Ubuntu, Debian, Fedora, Arch, Alpine, DSM), macOS, dan Windows WSL.
 
-### Cara Pasang:
-Clone repositori ke direktori mana saja di komputer/server Anda, lalu jalankan `install.sh`:
+---
+
+## 🚀 Instalasi Cepat (1 Langkah)
+
+Clone repositori dan jalankan installer otomatis:
 
 ```sh
-git clone <repo-url> agy-by-nou
-cd agy-by-nou
+git clone https://github.com/BBguss/Antigravity-CLI-by-Nou.git
+cd Antigravity-CLI-by-Nou
 sh install.sh
 ```
 
-### Apa yang Dilakukan oleh `install.sh` Secara Otomatis:
-1. **Deteksi Environment Universal**: Menemukan `$HOME` pengguna secara dinamis di Linux, macOS, WSL, atau Synology DSM.
-2. **Memasang Script Statusline & Switcher**: Menyalin `statusline-usage.sh`, `restore-statusline.sh`, `statusline-config.json`, dan `profile-switch.sh` ke `~/.gemini/antigravity-cli/`.
-3. **Memasang Binary CLI `agy-switch`**: Menyalin executable `agy-switch` ke `~/.local/bin/agy-switch`.
-4. **Mendaftarkan Slash Commands**: Menyalin seluruh perintah custom ke `~/.gemini/commands/` (`/switch-account*`).
-5. **Mendaftarkan Agent Skills**: Menyalin skill AI ke `~/.gemini/config/skills/` agar agen memahami perintah pergantian akun.
-6. **Auto-Inject Konfigurasi**: Memperbarui blok `statusLine` pada `~/.gemini/antigravity-cli/settings.json` secara idempoten dan aman dengan backup berwaktu.
+### Apa yang Dilakukan `install.sh` Secara Otomatis:
+1. Mendeteksi lingkungan pengguna (`$HOME` dan `$PATH`) secara dinamis.
+2. Memasang seluruh modul statusline dan switcher ke direktori konfigurasi `~/.gemini/antigravity-cli/`.
+3. Memasang binary CLI `agy-switch` ke direktori eksekusi lokal `~/.local/bin/`.
+4. Mendaftarkan slash commands ke `~/.gemini/commands/`.
+5. Mendaftarkan skill AI ke `~/.gemini/config/skills/`.
+6. Menerapkan konfigurasi `statusLine` ke `settings.json` secara aman (dilengkapi auto-backup bertanggal).
 
-> **Catatan**: Script instalasi bersifat **idempoten** — sangat aman dijalankan berulang kali kapan saja untuk memperbarui paket.
+> 💡 **Idempoten**: `install.sh` aman dijalankan berulang kali kapan saja (misal untuk memperbarui skrip).
 
 ---
 
-## ⚡ Integrasi Shell (Opsional & Sangat Direkomendasikan)
+## ⚡ Integrasi Shell (Opsional)
 
-Agar perintah `agy switch ...` dapat dipanggil langsung dari shell terminal seperti sub-perintah bawaan, tambahkan baris berikut ke `~/.bashrc`, `~/.zshrc`, atau `~/.profile`:
+Agar perintah `agy switch ...` dapat dipanggil secara natif langsung di terminal, tambahkan baris berikut ke konfigurasi shell Anda (`~/.bashrc`, `~/.zshrc`, atau `~/.profile`):
 
 ```sh
 [ -f "$HOME/.gemini/antigravity-cli/shell-agy-function.sh" ] && . "$HOME/.gemini/antigravity-cli/shell-agy-function.sh"
 ```
 
-Setelah di-source (`source ~/.bashrc`), fungsi shell `agy()` akan:
-* Mencegat argumen `switch` dan meneruskannya langsung ke `profile-switch.sh` tanpa turn/kuota.
-* Meneruskan seluruh perintah `agy` lainnya secara transparan ke binary asli (`command agy`).
+Setelah memuat ulang shell (`source ~/.bashrc`):
+* Mengetik `agy switch ...` akan mengeksekusi switcher akun instan (tanpa turn agen & tanpa kuota).
+* Mengetik perintah `agy` lainnya (misal `agy`, `agy -p`) akan diteruskan langsung ke binary asli Antigravity secara transparan.
 
 ---
 
-## 👥 Penggunaan Multi-Akun (Account Profiles)
+## 👥 Panduan Penggunaan Multi-Akun
 
-Antigravity CLI secara bawaan membaca token autentikasi saat startup. Fitur multi-akun mengisolasi berkas token dan setelan per profil di `~/.gemini/antigravity-profiles/` (izin ketat `0700`).
-
-### 1. Perintah Shell Langsung (Tanpa Agent Turn, Tanpa Kuota)
-
-Anda dapat menggunakan salah satu dari dua cara berikut:
+### 1. Dari Terminal Shell
+Gunakan fungsi shell `agy switch` atau binary `agy-switch`:
 
 ```sh
-# Melalui integrasi fungsi shell:
-agy switch list                     # Daftar profil dan cek akun aktif
-agy switch current                  # Tampilkan pointer profil vs token live
-agy switch new <nama_profil>        # Buat profil baru (login via link sekali)
-agy switch switch <nama_profil>     # Beralih ke profil tertentu
-agy switch del <nama_profil>        # Hapus profil non-aktif
+# Menampilkan daftar profil terdaftar dan melihat profil aktif:
+agy switch list
 
-# ATAU langsung melalui binary CLI:
-agy-switch list
-agy-switch switch <nama_profil>
+# Memeriksa status pointer profil aktif vs token file live:
+agy switch current
+
+# Membuat profil baru (profil dibuat kosong, siap untuk login):
+agy switch new akun-kerja
+
+# Berpindah ke profil lain:
+agy switch switch akun-kerja
+
+# Menghapus profil (hanya profil non-aktif yang dapat dihapus):
+agy switch del profil-lama
 ```
 
-> **Aturan Pergantian Akun**: Pergantian profil (*switch*) langsung menukar berkas token di `~/.gemini/antigravity-cli/`. Pergantian efektif pada **sesi `agy` berikutnya** (cukup restart TUI `agy`).
+> **Catatan Pergantian Akun**: Pergantian profil menukar berkas token di `~/.gemini/antigravity-cli/`. Perubahan efektif pada **sesi `agy` berikutnya** (cukup restart TUI `agy`). Profil baru memerlukan satu kali login OAuth melalui tautan browser seperti biasa.
 
 ---
 
-### 2. Slash Command di Dalam TUI (`/switch-account`)
-
-Dapat dipanggil langsung saat Anda sedang berada di dalam sesi TUI Antigravity:
+### 2. Dari Dalam TUI Antigravity (Slash Commands)
+Perintah dapat diketik langsung di dalam prompt interaktif `agy`:
 
 ```text
-/switch-account list            # Lihat profil + akun aktif
-/switch-account current         # Pointer profil vs file live
-/switch-account switch akunb    # Ganti akun ke 'akunb'
-/switch-account new akunc       # Tambah profil baru
-/switch-account del akunc       # Hapus profil
+/switch-account list            # Menampilkan daftar akun
+/switch-account current         # Cek akun aktif saat ini
+/switch-account switch akun-b   # Beralih ke profil 'akun-b'
+/switch-account new akun-c      # Menyiapkan profil baru
+/switch-account del akun-c      # Menghapus profil
 ```
 
-Tersedia juga alias instan satu baris:
+Tersedia juga alias langsung satu baris:
 * `/switch-account-list`
 * `/switch-account-current`
 * `/switch-account-switch <nama>`
@@ -105,65 +119,63 @@ Tersedia juga alias instan satu baris:
 
 ---
 
-## 📦 Struktur Berkas & Komponen
+## 📦 Struktur Berkas Proyek
 
-| Berkas Sumber | Tujuan Pemasangan | Peran & Fungsi |
+| Berkas | Lokasi Terpasang | Deskripsi |
 |---|---|---|
-| `statusline-usage.sh` | `~/.gemini/antigravity-cli/` | Renderer statusline visual 1 baris ANSI (Direct Mode v5). |
-| `statusline-config.json` | `~/.gemini/antigravity-cli/` | Definisi kanon blok `statusLine` untuk pemulihan. |
-| `restore-statusline.sh` | `~/.gemini/antigravity-cli/` | Skrip idempoten pemulih `statusLine` di `settings.json`. |
-| `profile-switch.sh` | `~/.gemini/antigravity-cli/` | Core engine switcher akun multi-profil. |
-| `shell-agy-function.sh` | `~/.gemini/antigravity-cli/` | Wrapper integrasi fungsi shell `agy()`. |
-| `bin/agy-switch` | `~/.local/bin/agy-switch` | Binary CLI standalone untuk switch profil. |
-| `commands/*.toml` | `~/.gemini/commands/` | Definisi slash commands `/switch-account*`. |
-| `skills/*` | `~/.gemini/config/skills/` | Skill integrasi AI untuk mendeteksi intent pergantian akun. |
-| `install.sh` | *(Installer root)* | Skrip pemasang otomatis ke seluruh target di atas. |
+| `statusline-usage.sh` | `~/.gemini/antigravity-cli/` | Engine utama render statusline ANSI (Direct Mode v5). |
+| `statusline-config.json` | `~/.gemini/antigravity-cli/` | Template kanonis konfigurasi blok `statusLine`. |
+| `restore-statusline.sh` | `~/.gemini/antigravity-cli/` | Skrip pemulih konfigurasi statusline di `settings.json`. |
+| `profile-switch.sh` | `~/.gemini/antigravity-cli/` | Core engine manajemen multi-profil dan rotasi token. |
+| `shell-agy-function.sh` | `~/.gemini/antigravity-cli/` | Integrasi fungsi shell `agy()` untuk interception sub-command. |
+| `bin/agy-switch` | `~/.local/bin/agy-switch` | Executable CLI standalone untuk dipanggil langsung dari shell. |
+| `commands/*.toml` | `~/.gemini/commands/` | Definisi slash commands bawaan TUI. |
+| `skills/*` | `~/.gemini/config/skills/` | Definisi kemampuan AI agent untuk mengenali perintah akun. |
+| `install.sh` | *(Root installer)* | Otomatisasi instalasi dan konfigurasi lingkungan. |
 
 ---
 
-## 🔧 Pemulihan (*Self-Healing*) & Rollback
+## 🔄 Pemulihan (*Self-Healing*) & Rollback
 
-### Jika Statusline Hilang Akibat Update `agy`:
-Jika pembaruan binary `agy` menimpa `settings.json`, Anda dapat memulihkannya dalam 1 detik:
+### Pemulihan Cepat
+Jika pembaruan versi binary `agy` di masa mendatang mereset berkas `settings.json`, kembalikan statusline dalam 1 detik dengan menjalankan:
 ```sh
 sh ~/.gemini/antigravity-cli/restore-statusline.sh
 ```
-Atau di dalam sesi TUI:
+Atau langsung di dalam sesi TUI:
 ```text
 /statusline enable
 ```
 
-### Rollback ke Pengaturan Asli:
-Skrip installer selalu membuat berkas cadangan bertanggal sebelum memodifikasi `settings.json`:
+### Rollback Konfigurasi
+Installer selalu membuat berkas cadangan otomatis sebelum melakukan perubahan:
 ```sh
-# Contoh merestore backup otomatis:
+# Mengembalikan settings ke cadangan sebelum instalasi:
 cp ~/.gemini/antigravity-cli/settings.json.bak-<TIMESTAMP> ~/.gemini/antigravity-cli/settings.json
 ```
 Atau di dalam TUI: `/statusline reset`.
 
 ---
 
-## 🧠 Catatan Arsitektur Teknis (Direct Mode v5)
+## 🧠 Arsitektur Teknis (Direct Mode v5)
 
-1. **Direct Session Ingestion (v5)**:
-   Runner TUI Antigravity mengalirkan payload JSON sesi lengkap melalui `stdin` pada setiap siklus render (persentase kuota, email akun, cwd, model, terminal width). Script mengeksekusi satu proses Python membaca `stdin` tanpa proses latar belakang (*zero background daemons*), tanpa fetch eksternal, dan tanpa file lock yang berisiko *stampede*.
-2. **Pembersihan Environment Terlucuti (*Stripped Env*)**:
-   Runner TUI mengeksekusi sub-proses statusline dengan environment terlucuti (tanpa `$HOME` lengkap). `statusline-usage.sh` memulihkan `$HOME` dan `$PATH` secara otomatis melalui resolusi POSIX (`getent` / `id` / `eval`) sebelum merender output.
-3. **Penyimpanan Profil Terisolasi**:
-   Semua data otentikasi disimpan di `~/.gemini/antigravity-profiles/` dengan izin `0700` (hanya dapat dibaca oleh pemilik proses). Tidak ada data rahasia atau token OAuth yang tersimpan di dalam repositori kode.
+1. **Streaming Ingestion**: Antigravity TUI runner mengalirkan payload JSON sesi secara otomatis melalui `stdin` setiap kali merender baris status. Skrip menangkap stream tersebut dan melakukan formatting ANSI dalam 1 proses Python berkecepatan tinggi (~0.15 detik) tanpa *fork* berulang.
+2. **Environment Stripping Resilience**: Antigravity mengeksekusi sub-proses statusline dengan environment terisolasi. Skrip secara otomatis memulihkan konteks `$HOME` dan `$PATH` standar POSIX agar command git dan interpreter lokal selalu dapat ditemukan.
+3. **Atomic Profile Switch**: Penukaran profil akun menggunakan transaksi berkas atomik disertai mekanisme *rollback* otomatis jika format berkas `settings.json` terdeteksi tidak valid.
 
 ---
 
-## 📜 Riwayat Pembaruan
+## 💻 Kompatibilitas & Persyaratan
 
-* **v5.1 Universal Portability (2026-10-05)**:
-  * Eliminasi total seluruh path spesifik server (`/volume1/web/...` dan `/var/services/homes/...`).
-  * Installer otomatis menyeluruh: menyalin script, binary CLI `~/.local/bin/agy-switch`, slash commands `~/.gemini/commands/`, dan skills `~/.gemini/config/skills/`.
-  * Resolusi path dinamis di `restore-statusline.sh` dan `bin/agy-switch` agar berjalan di sembarang OS (Linux, macOS, WSL, Synology DSM).
-* **v5 Direct Mode (2026-09-23)**:
-  * Arsitektur stdin streaming: render instan (~0.15 detik) langsung dari session payload runner Antigravity.
-  * Menghapus mekanisme lock/background worker yang memicu proses zombie.
-* **v4 (2026-09-23)**:
-  * Atomic directory lock & auto-reclaim pencegah race condition saat render cepat.
-* **v1–v3**:
-  * Teks polos $\rightarrow$ gauge ANSI visual $\rightarrow$ segmen konteks akun & status git.
+* **OS**: Linux (distro apa pun), macOS (Intel & Apple Silicon), Windows (via WSL2).
+* **Dependensi**:
+  * Python 3.6+ (bawaan sistem operasi).
+  * Shell POSIX (`bash`, `zsh`, `dash`, atau `ash`).
+  * Git (opsional, untuk konteks branch di status bar).
+  * Antigravity CLI (`agy`) yang sudah terpasang.
+
+---
+
+## 📄 Lisensi
+
+Didistribusikan di bawah lisensi [MIT](LICENSE). Terbuka untuk digunakan, dimodifikasi, dan didistribusikan secara bebas.
