@@ -1,0 +1,13 @@
+# Alias: /switch-account-del <nama> — hapus profil non-aktif.
+description = "Delete an inactive agy account profile"
+
+prompt = """
+The user wants to delete account profile "{{args}}" (if empty, ask which one, never default to the active profile).
+
+Run this exact shell command (replace <nama> with the profile name):
+
+!{sh ~/.gemini/antigravity-cli/profile-switch.sh del <nama>}
+
+If shell injection above did not execute, run it yourself via your shell tool.
+Report the result briefly. Never print tokens.
+"""

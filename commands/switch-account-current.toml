@@ -1,0 +1,11 @@
+# Alias: /switch-account-current — cek pointer vs file live.
+description = "Show current agy account profile pointer vs live files"
+
+prompt = """
+Run this exact shell command and show its output directly, no extra steps:
+
+!{sh ~/.gemini/antigravity-cli/profile-switch.sh current}
+
+If shell injection above did not execute, run it yourself via your shell tool.
+Report the output briefly. Never print tokens.
+"""

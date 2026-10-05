@@ -1,0 +1,16 @@
+# Alias: /switch-account-new <nama> — siapkan profil + mekanisme login.
+description = "Create a new agy account profile, then guide browser-link login"
+
+prompt = """
+The user wants to add account profile "{{args}}" (if empty, ask for the name first, then proceed).
+
+Step 1 — run this exact shell command (replace <nama> with the profile name):
+
+!{sh ~/.gemini/antigravity-cli/profile-switch.sh new <nama>}
+
+If shell injection above did not execute, run it yourself via your shell tool.
+
+Step 2 — after the profile exists, tell the user the login mechanism:
+switch to it with /switch-account-switch <nama>, then start agy and complete
+the one-time Google OAuth browser-link login. Never print tokens.
+"""

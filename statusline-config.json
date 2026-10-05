@@ -1,0 +1,6 @@
+{
+  "type": "command",
+  "command": "~/.gemini/antigravity-cli/statusline-usage.sh",
+  "enabled": true,
+  "stack_with_default": true
+}

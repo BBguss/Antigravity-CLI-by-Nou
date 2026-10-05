@@ -1,0 +1,15 @@
+# Alias: /switch-account-switch <nama> — ganti akun satu baris.
+description = "Switch agy account profile by name"
+
+prompt = """
+The user wants to switch to account profile "{{args}}" (if empty, ask which profile, offering the list first).
+
+Run this exact shell command (replace <nama> with the profile name):
+
+!{sh ~/.gemini/antigravity-cli/profile-switch.sh switch <nama>}
+
+If shell injection above did not execute, run it yourself via your shell tool.
+
+Then report the result briefly and always remind: the switch takes effect on
+the NEXT agy start (token loads once at startup). Never print tokens.
+"""

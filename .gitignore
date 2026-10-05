@@ -1,0 +1,12 @@
+# Temporary & backup files
+*.bak*
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+
+# Sensitive credentials & profiles (must NEVER be in repo)
+antigravity-oauth-token*
+installation_id*
+settings.json*
+*.lock

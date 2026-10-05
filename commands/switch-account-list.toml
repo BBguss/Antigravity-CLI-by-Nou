@@ -1,0 +1,11 @@
+# Alias: /switch-account-list — langsung tampil seluruh akun terdaftar.
+description = "List all registered agy account profiles instantly"
+
+prompt = """
+Run this exact shell command and show its output directly, no extra steps:
+
+!{sh ~/.gemini/antigravity-cli/profile-switch.sh list}
+
+If shell injection above did not execute, run it yourself via your shell tool.
+Report the output briefly. Never print tokens.
+"""

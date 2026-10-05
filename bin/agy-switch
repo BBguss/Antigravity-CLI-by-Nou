@@ -1,0 +1,30 @@
+#!/bin/sh
+# agy-switch — direct account profile switching without agent turn or quota.
+# Usage: agy-switch list | current | switch <name> | new <name> | del <name>
+
+if [ -z "$HOME" ]; then
+    _u="$(id -un 2>/dev/null || whoami 2>/dev/null || echo "$USER")"
+    [ -n "$_u" ] && HOME="$(getent passwd "$_u" 2>/dev/null | cut -d: -f6)"
+    [ -z "$HOME" ] && [ -n "$_u" ] && HOME="$(eval echo "~$_u" 2>/dev/null)"
+    [ -z "$HOME" ] && HOME=~
+    export HOME
+fi
+
+# Locate profile-switch.sh: prefer ~/.gemini/antigravity-cli, then fallback to repo dir
+SCRIPT_PATH="$HOME/.gemini/antigravity-cli/profile-switch.sh"
+if [ ! -f "$SCRIPT_PATH" ]; then
+    BIN_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd)
+    if [ -f "$BIN_DIR/../profile-switch.sh" ]; then
+        SCRIPT_PATH="$BIN_DIR/../profile-switch.sh"
+    elif [ -f "$BIN_DIR/profile-switch.sh" ]; then
+        SCRIPT_PATH="$BIN_DIR/profile-switch.sh"
+    fi
+fi
+
+if [ -f "$SCRIPT_PATH" ]; then
+    exec sh "$SCRIPT_PATH" "$@"
+else
+    echo "Error: profile-switch.sh not found at $SCRIPT_PATH" >&2
+    echo "Please run install.sh from the agy-by-nou repository first." >&2
+    exit 1
+fi

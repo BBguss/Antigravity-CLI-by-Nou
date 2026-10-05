@@ -1,0 +1,17 @@
+# Custom slash command: /switch-account
+# Gemini-CLI-style user command (agy reads ~/.gemini/commands/*.toml).
+# Usage in TUI: /switch-account list | current | switch <name> | new <name>
+description = "Switch agy account profile (list/current/switch/new)"
+
+prompt = """
+Account profile switcher. Run this exact shell command with the user's arguments ($ARGS is one of: list, current, switch <name>, new <name>, del <name>):
+
+!{sh ~/.gemini/antigravity-cli/profile-switch.sh {{args}}}
+
+If shell injection above did not execute, run it yourself via your shell tool:
+sh ~/.gemini/antigravity-cli/profile-switch.sh {{args}}
+
+Then report the script output briefly and always remind: switching takes
+effect on the NEXT agy start (token loads once at startup); a fresh profile
+needs one browser-link login. Never print tokens.
+"""
